@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>WDV321 Advanced Javascript</title>
+	<style>
+		.displayContainer {
+			border:thin solid black;
+			width:50%;
+			margin-left:20px;
+			padding:10px;
+		}
+
+		#complaintType, #techProblemType, #productIssueType {
+			display: none;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>WDV321 Advanced Javascript</h1>
+	<h2>Dynamic Structure -  Display Property Exercise</h2>
+<p>Use this page as the basis for your assignment. You are welcome to change the content, layout and style of this page as desired. </p>
+
+  <p>Create the following content areas on the page using HTML.</p>
+	<ol>
+	  <li>Create a div that contains a new drop down list with at least four common Complaints to a company. </li>
+	  <li>Create a div that contains four Technical Problems displayed as a  set of checkboxes. </li>
+	  <li>Create a div that contains four Product Issues displayed as a set of radio buttons.</li>
+	  <li>Use the display property to remove these content containers from the page.</li>
+  </ol>
+	<p>
+		Based on the selection from the &quot;Reason For Contact&quot; drop down, dynamically
+		display the requested content in the Display Container section. For this exercise use
+		the CSS display property to show/remove the requested content areas.
+	</p>
+	<h4>Customer Service Complaints:</h4>
+	<p>
+		<label>Reason For Contact:
+		  <select name="contactType" id="contactType">
+			<option value="">Select Reason</option>
+			<option value="C">Complaints</option>
+			<option value="T">Technical Problems</option>
+			<option value="P">Product Issues</option>
+		  </select>
+		</label>
+  </p>
+	<section class="displayContainer">
+		<div id="complaintType">
+			<select name="complaintSelection" id="complaintSelection">
+				<option value="service">Customer service complaint</option>
+				<option value="billing">Billing and payment complaint</option>
+				<option value="ethics">Ethics and compliance complaint</option>
+				<option value="technical">Online experience complaint</option>
+			</select>
+		</div>
+		<div id="techProblemType">
+			<div>
+				<input type="checkbox" name="password" value="password" />
+				<label for="password">Forgot password</label>
+			</div>
+
+			<div>
+				<input type="checkbox" name="email-opt-out" value="email-opt-out" />
+				<label for="email-opt-out">Wish to opt-out of automatic emails</label>
+			</div>
+
+			<div>
+				<input type="checkbox" name="broken" value="broken" />
+				<label for="broken">Product malfunctioning / not working as described</label>
+			</div>
+
+			<div>
+				<input type="checkbox" name="account-lock" value="account-lock" />
+				<label for="account-lock">Request account deletion / deactivation</label>
+			</div>
+
+			<div>
+				<input type="checkbox" name="other" value="other" />
+				<label for="other">Other technological problem not specified</label>
+			</div>
+		</div>
+		<div id="productIssueType">
+			<div>
+				<input type="radio" name="productIssue" id="issueDamaged" value="damaged" />
+				<label for="damaged">Product damaged during delivery</label>
+			</div>
+
+			<div>
+				<input type="radio" name="productIssue" id="issueBroken" value="quality" />
+				<label for="quality">Poor quality product / dissatisfied with product</label>
+			</div>
+
+			<div>
+				<input type="radio" name="productIssue" id="issueBroken" value="wrong" />
+				<label for="wrong">Product not what I ordered</label>
+			</div>
+
+			<div>
+				<input type="radio" name="productIssue" id="issueBroken" value="gone" />
+				<label for="gone">Product never arrived</label>
+			</div>
+		</div>
+	</section>
+	<p> </p>
+	<p>&nbsp;</p>
+
+	<script>
+		var complaints = document.getElementById("complaintType");
+		var techProblems = document.getElementById("techProblemType");
+		var productIssues = document.getElementById("productIssueType");
+
+		var contactTypes = document.getElementById("contactType");
+		var allContactTypes = [complaints, techProblems, productIssues];
+
+		function resetAll() {
+			for (let type of allContactTypes) {
+				type.style.display = "none";
+			}
+		}
+
+		contactTypes.addEventListener("change", (event) => {
+			let opt = event.target.value;
+			resetAll();
+
+			if (opt == "C")      complaints.style.display = "unset";
+			else if (opt == "T") techProblems.style.display = "unset";
+			else if (opt == "P") productIssues.style.display = "unset";
+		});
+	</script>
+</body>
+</html>
