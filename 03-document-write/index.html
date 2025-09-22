@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>2-4: Dynamically Create New Content</title>
+    <link rel="stylesheet" href="../style.css">
+    <script>
+        // (Side note: 19 points? It's fine if that was intentional, but I was
+        // wondering if it was. ^^)
+
+        // For reasons I can only attribute to neurodivergence, this assignment
+        // does far more than what I was asked to do, while also doing exactly
+        // what I was asked to do. It does use `document.write()` to create a
+        // dropdown, radio menu, and a formatted div dynamically. It also:
+        //
+        // 1. Extends the `String` type in JavaScript to have a new
+        //    `toSnakeCase()` function, which I use to assign values to option
+        //    labels automatically if values aren't provided,
+        // 2. Documents the functions that create the various elements using
+        //    JSDoc, because I wanted to learn how that worked (out of nothing
+        //    but the impulse to do so), and
+        // 3. Implements those functions in a fairly intricate manner, allowing
+        //    for a lot of configuration while creating them.
+        //
+        // How this turned out is really silly, but I had fun! And that's all I
+        // can really hope for out of my schoolwork.
+
+        Object.defineProperty(String.prototype, "toSnakeCase", {
+            value: function toSnakeCase() {
+                let newStr = "";
+
+                const SPACE = 32;
+                const NUMBER = { start: 48, end: 57 };
+                const LOWER = { start: 97, end: 122 };
+                const UPPER = { start: 65, end: 90 };
+
+                for (let idx = 0; idx < this.length; idx++) {
+                    let char = this.at(idx);
+                    let code = this.charCodeAt(idx);
+
+                    if (code === SPACE) {
+                        newStr += "_";
+                    } else if (
+                        (code >= NUMBER.start && code <= NUMBER.end) ||
+                        (code >= LOWER.start && code <= LOWER.end) ||
+                        (code >= UPPER.start && code <= UPPER.end)
+                    ) {
+                        newStr += char;
+                    }
+                }
+
+                return newStr.toLowerCase();
+            },
+            writable: true,
+            configurable: true,
+        });
+
+        /**
+         * Example function that generates a dropdown from the arguments. Uses
+         * document.write() as that is the method requested by the assignment.
+         * Very configurable, just for fun.
+         *
+         * @param {string} id - The id that this dropdown will generate with.
+         * @param {(string|boolean)} label - The label that generates alongside
+         * this dropdown. If `false`, does not generate a corresponding label.
+         * @param {string[]} options - A list of options to generate with the
+         * dropdown. These are specifically the user-facing labels.
+         * @param {(string[]|boolean)} values - A list of values to associate
+         * with each of the options in the `options` parameter. This array must
+         * be the exact length of the array passed into `options`. If `false`,
+         * the values of the dropdown will be turned into lowercase, with all
+         * spaces replaced with underscores.
+         * @param {(string|boolean)} [withDefault="Please select an option"] -
+         * Specifies whether a default non-option should be provided, and what
+         * text should be associated with it. If false, does not generate a
+         * default non-option, and defaults to the first value of the dropdown.
+         * @throws {RangeError} If the array passed into `values` is not the
+         * same length as the array passed into `options`, and `values` is not
+         * set to `false`.
+         * @throws {TypeError} If any argument is null. For opting out of
+         * specific parameters, pass in `false` instead.
+         */
+        function createDropdown (
+            id, label, options, values, withDefault = "Please select an option"
+        ) {
+            // While these parameters can accept boolean values, truthy boolean
+            // values do not make sense here.
+            if (values === true || withDefault === true) {
+                throw new TypeError (
+                    "'true' found for a parameter in createDropdown(); " +
+                    "did you mean to pass a value of some other type into it?"
+                );
+            }
+
+            // While I could make the various parameters nullable, it's much
+            // easier for null/undefined to make it into this function *by
+            // accident*, as opposed to an explicit opting out with a boolean.
+            for (let val of [id, label, options, values, withDefault]) {
+                // Deep equality prevents the default JS behavior of equating
+                // `null` to `false`.
+                if (val === undefined) {
+                    throw new TypeError (
+                        "Null argument found in createDropdown(); " +
+                        "did you mean to pass `false` into a parameter?"
+                    );
+                }
+            }
+
+            if (options.length == 0) throw new RangeError("Options array is empty!");
+            if (values === false) values = options.map(opt => opt.toSnakeCase());
+
+            // This cannot possibly be correct, so error and exit.
+            if (options.length !== values.length) {
+                throw new RangeError (
+                    "Options and values arguments are not the same size!"
+                );
+            }
+
+            let finalOutput = "";
+
+            if (label !== false) {
+                finalOutput += '<label for="' + id + '">' + label + '</label>';
+            }
+
+            finalOutput += '<select id="' + id + '">';
+
+            if (withDefault !== false) {
+                finalOutput += '<option value="">' + withDefault + '</option>';
+            }
+
+            for (let idx = 0; idx < options.length; idx++) {
+                let opt = options[idx];
+                let val = values[idx];
+
+                finalOutput += '<option value="' + val + '">' + opt + '</option>';
+            }
+
+            finalOutput += "</select>";
+            document.write(finalOutput);
+        }
+
+        /**
+         * Example function that generates a radio menu from the arguments.
+         *
+         * @param {string} name - The name of the radio group for this menu.
+         * @param {string[]} labels - An array of strings that serve as the
+         * user-facing text of the radio menu.
+         * @param {(string[]|boolean)} values - Assigns specific values to
+         * each of the options specified in `labels`. If `false`, generates
+         * values automatically in snake case.
+         * @param {string} [idInfix="-opt-"] - IDs for the radio buttons are
+         * assigned in the form of `name + idInfix + (n)`, where n is the
+         * position in the labels/values array + 1.
+         */
+        function createRadio(name, labels, values, idInfix = "-opt-") {
+            if (values === true) {
+                throw new TypeError (
+                    "'true' found for a parameter in createRadio(); " +
+                    "did you mean to pass a value of some other type into it?"
+                );
+            }
+
+            for (let val of [name, labels, values, idInfix]) {
+                if (val === undefined) {
+                    throw new TypeError (
+                        "Null argument found in createRadio(); " +
+                        "did you mean to pass `false` into a parameter?"
+                    );
+                }
+            }
+
+            if (labels.length == 0) throw new RangeError("Labels array is empty!");
+            if (values === false) values = labels.map(label => label.toSnakeCase());
+
+            if (labels.length !== values.length) {
+                throw new RangeError (
+                    "Labels and values arguments are not the same size!"
+                );
+            }
+
+            let finalOutput = "";
+
+            finalOutput += '<div id="' + name + '-radio">';
+
+            for (let idx = 0; idx < labels.length; idx++) {
+                let label = labels[idx];
+                let val = values[idx];
+                let id = name + idInfix + idx;
+
+                finalOutput += '<input type="radio" ' +
+                               'id="' + id + '" ' +
+                               'name="' + name + '" ' +
+                               'value="' + val + '" />';
+                finalOutput += '<label for="' + id + '">' + label + '</label>';
+                finalOutput += "<br>"
+            }
+
+            finalOutput += "</div><br>";
+            document.write(finalOutput);
+        }
+
+        function createResponse(suit, rank, action) {
+            let suits = ["♣s", "♥s", "♠s", "♦s"];
+            let color = suit % 2 == 1 ? "#FF0000" : "#000000";
+            let card = '<span style="color: ' + color + '">'
+                + rank + ' of ' + suits[suit] + '</span>';
+
+            let responses = {
+                flip: ["You flip the ", " over. Nothing happens."],
+                back: ["You place the ", " back in the deck. Hey, thanks!"],
+                keep: ["Hey, where are you going with my ", "! Come back!"]
+            }
+
+            let response = '<p>' + responses[action][0] + card
+                + responses[action][1] + '</p>';
+
+            let div = '<br><div style="border: 1px solid green; color: green; padding: 1em;">'
+                + response + "</div>";
+
+            document.write(div);
+        }
+    </script>
+  </head>
+  <body>
+    <script>
+        let suits = [ "Clubs", "Hearts", "Spades", "Diamonds" ];
+        let suitValues = ["0", "1", "2", "3"];
+        let ranks = [ "Ace", "Two", "Three", "Four",
+                      "Five", "Six", "Seven", "Eight",
+                      "Nine", "Ten", "Jack", "Queen", "King" ];
+
+        createDropdown("rank-dropdown", false, ranks, false, "Select a rank");
+        createDropdown("suit-dropdown", " Of: ", suits, suitValues, "Select a suit");
+
+        document.write("<p>Choose an action:</p>");
+
+        let actions = [
+            "Flip over the card",
+            "Place it back in the deck",
+            "Keep it as a souvenir"
+        ];
+        let actionValues = ["flip", "back", "keep"];
+
+        createRadio("card-action", actions, actionValues);
+
+        document.writeln('<input id="response-button" type="button" value="Show outcome" />');
+
+        let response_button = document.getElementById("response-button");
+        response_button.addEventListener("click", () => {
+            let suit = Number.parseInt(document.getElementById("suit-dropdown").value, 10);
+            let rank = document.getElementById("rank-dropdown").value;
+            let action = document.querySelector('input[name="card-action"]:checked').value;
+
+            if (action === null || rank == "") { return; }
+
+            createResponse(suit, rank, action);
+        });
+    </script>
+  </body>
+</html>
