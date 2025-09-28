@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+
+    <style>
+        * { margin: 0; }
+
+        body {
+            font-size: 14pt;
+            max-width: 900px;
+            margin: 1em auto;
+        }
+
+        p {
+            margin-top: 0.75rem;
+            line-height: 1.6;
+        }
+    </style>
+  </head>
+  <body>
+
+    <script>
+        // Useful just for truncation purposes.
+        let body = document.body;
+
+        // Copying this from the previous assignment because I already did the
+        // work, so there's no point in not using it again ^^'
+        Object.defineProperty(String.prototype, "toSnakeCase", {
+            value: function toSnakeCase() {
+                let newStr = "";
+
+                const SPACE = 32;
+                const NUMBER = { start: 48, end: 57 };
+                const LOWER = { start: 97, end: 122 };
+                const UPPER = { start: 65, end: 90 };
+
+                for (let idx = 0; idx < this.length; idx++) {
+                    let char = this.at(idx);
+                    let code = this.charCodeAt(idx);
+
+                    if (code === SPACE) {
+                        newStr += "_";
+                    } else if (
+                        (code >= NUMBER.start && code <= NUMBER.end) ||
+                        (code >= LOWER.start && code <= LOWER.end) ||
+                        (code >= UPPER.start && code <= UPPER.end)
+                    ) {
+                        newStr += char;
+                    }
+                }
+
+                return newStr.toLowerCase();
+            },
+            writable: true,
+            configurable: true,
+        });
+
+        // [["a", "b", "c"], [1, 2, 3], [true, false, null]]
+        // becomes
+        // [["a", 1, true], ["b", 2, false], ["c", 3, null]]
+        function zip(...arrays) {
+            return arrays[0].keys().map(n => arrays.map(arr => arr[n])).toArray();
+        }
+
+        // ["str", "num", "bool"], [["a", 1, true], ["b", 2, false], ["c", 3, null]]
+        // becomes
+        // [
+        //     { str: "a", num: 1, bool: true },
+        //     { str: "b", num: 2, bool: false },
+        //     { str: "c", num: 3, bool: null }
+        // ]
+        function dict(keys, tuples) {
+            return tuples.map(tup => Object.fromEntries(
+                tup.keys().map(n => [keys[n], tup[n]])));
+        }
+
+        // Simple wrapper for creating elements using the node system and then
+        // attaching them to other elements.
+        //
+        // `text` is a Node, not a string. see text() for more information.
+        function elem(type, attrs = {}, children = null) {
+            let node = document.createElement(type);
+
+            if (Array.isArray(children)) {
+                children.forEach(child => {
+                    if (child instanceof Node) node.appendChild(child);
+                })
+            } else if (children instanceof Node) node.appendChild(children);
+
+            for (let attr of Object.keys(attrs)) {
+                // Using the `style` property is more resilient to changes
+                // than setAttribute() is, so let's just use the right
+                // method to manipulate it. Also, `style` keys are the only
+                // attributes that are objects, not strings.
+                if (attr === "style") {
+                    for (let rule of Object.keys(attrs[attr])) {
+                        node.style.setProperty(rule, attrs[attr][rule]);
+                    }
+                } else {
+                    node.setAttribute(attr, attrs[attr].toString());
+                }
+            }
+
+            return node;
+        }
+
+        function text(str) {
+            return document.createTextNode(str);
+        }
+
+        function newDropdown (
+            id, label, options, values = false,
+            withDefault = "Please select an option"
+        ) {
+            if (   (typeof id !== "string")
+                || (typeof label !== "string" && label !== false)
+                || (!Array.isArray(options) || options.length === 0)
+                || (!Array.isArray(values)
+                    && values !== false
+                    && options.length !== values.length)
+                || (typeof withDefault !== "string" && withDefault !== false)
+            ) {
+                throw new Error("Invalid argument passed into `newDropdown()`!");
+            }
+
+            if (values === false) values = options.map(opt => opt.toSnakeCase());
+
+            if (typeof withDefault === "string") {
+                options.unshift(withDefault);
+                values.unshift("");
+            }
+
+            if (typeof label === "string") {
+                body.appendChild(elem("label", { for: id }, text(label)));
+            }
+
+            let dropdown = elem("select", {
+                id: id,
+                name: id + "-dropdown",
+                style: {
+                    padding: "10px"
+                }
+            });
+
+            const opts = dict(["opt", "val"], zip(options, values));
+            const elems = opts.map(pair =>
+            elem("option", { value: pair.val }, text(pair.opt)));
+
+            elems.forEach(elem => dropdown.appendChild(elem));
+            body.appendChild(dropdown);
+        }
+
+        function radio(id, name, value, label) {
+            return elem("div", {}, [
+                elem("input", { type: "radio", id: id, name: name, value: value }),
+                elem("label", { for: id }, text(label)),
+            ]);
+        }
+
+        function newRadio(name, labels, values = false, idInfix = "-opt-") {
+            if (   (typeof name !== "string")
+                || (!Array.isArray(labels))
+                || (!Array.isArray(values)
+                    && values !== false
+                    && labels.length !== values.length)
+                || (typeof idInfix !== "string")
+            ) {
+                throw new Error("Invalid argument passed into `newRadio()`!")
+            }
+
+            if (values === false) values = labels.map(label => label.toSnakeCase());
+
+            let ids = labels.keys().map(n => name + idInfix + (n + 1)).toArray();
+            let entries = dict(["label", "val", "id"], zip(labels, values, ids));
+
+            entries.forEach(entry => body.appendChild (
+                radio(entry.id, name, entry.val, entry.label)));
+        }
+
+        newDropdown("example", "Example dropdown:", ["one", "two", "three"]);
+        newRadio (
+            "new-radio",
+            ["Radio button one", "Radio button two", "Radio button three"]
+        );
+
+        // Making a div without a function so I can just show how complex a
+        // use with elem() can end up:
+
+        let fancyDiv = {
+            id: "fancy-div",
+            style: {
+                "background-color": "rgba(128, 192, 255, 0.15)",
+                "font-family":      "sans-serif",
+                "padding":          "1em",
+                "margin":           "1em",
+                "border-radius":    "10px",
+            }
+        }
+
+        let newDiv = elem("div", fancyDiv, [
+            elem("h1", {}, text("This div is generated entirely with code.")),
+            elem("p", {}, [
+                text("It's based on a really simple wrapper around "),
+                elem("code", {}, text("Document.createElement()")),
+                text(", which removes most of the boilerplate associated with using the system normally. One thing that this approach allows you to do is define pieces of a web-page as functions which, when run with parameters, can generate many variants of the same element with tweaks to its text and stylesheet, which I believe is really quite nice! :)")
+            ]),
+            elem("div", fancyDiv, [
+                elem("h2", {}, text("Fun fact!")),
+                elem("p", {}, text("The function that creates a set of radio options utilizes this principle to generate fields with dynamic labels, ids, and values.")),
+            ])
+        ]);
+
+        body.appendChild(newDiv);
+    </script>
+  </body>
+</html>
