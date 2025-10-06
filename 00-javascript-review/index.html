@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WDV321 Advanced JavaScript</title>
+    <style>
+        body {
+            background-color: darkgoldenrod;
+        }
+        #container {
+            width:80%;
+            margin-left:auto;
+            margin-right:auto;
+            background-color: bisque;
+            padding-left:5px;
+            padding-right:5px;
+        }
+
+        .displayGameLibrary {
+            margin-top:20px;
+            padding:5px;
+            border:thin solid black;
+            background-color: blanchedalmond;
+        }
+
+        footer p {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <header>
+            <h1>WDV321 Advanced JavaScript</h1>
+        </header>
+        <main>
+            <h2>Unit-1 JavaScript Review Project</h2>
+            <form method="" action="#">
+                <fieldset>
+                    <legend>Game Input</legend>
+                    <p>
+                        <label for="gameName">Game Name:</label>
+                        <input type="text" id="gameName" name="gameName" placehoder="Game Name">
+                    </p>
+                    <p>
+                        <label for="gameType">Game Type:</label>
+                        <select id="gameType" name="gameType">
+                            <option value="">Select a Game Type</option>
+                        </select>
+                    </p>
+                    <p>
+                        <label for="gamePlayers">Number of Players:</label>
+                        <input type="text" id="gamePlayers" name="gamePlayers">
+                    </p>
+                    <p>
+                        Difficulty Rating:
+                    </p>
+                    <p>
+                        Game Options:
+                    </p>
+
+                    <p>
+                        <input type="submit" value="Add Game to Library">
+                        <input type="reset" value="New Game">
+                        <input type="submit" value="Display Game Library">
+                    </p>
+                    <p>
+                        <input type="reset" value="Start Over">
+                    </p>
+                </fieldset>
+            </form>
+
+            <section class="displayGameLibrary">
+            </section>
+
+            <div id="instructionsBox">
+                <h3>Instructions:</h3>
+                <p>
+                    Dynamic Content:
+                    <ol>
+                        <li>Use the provided arrays to dynamically populate the Game Type. Include the abbreviations as value attritubes.</li>
+                        <li>Use the provided array to dynamically create a set of radio buttons for Diffulty Rating.</li>
+                        <li>Use the provided array to dynamically create a set of checkboxes for Game Options.</li>
+                        <li>Dynamically load the Copyright year in the footer so that is always the current year.</li>
+                    </ol>
+                </p>
+                <p>
+                    Data Validation:
+                    <ol>
+                        <li>Game Name - cannot be blank, max 50 characters</li>
+                        <li>Game Type - one must be selected</li>
+                        <li>Number of Players - must be numeric, 1+, max of 20, whole number</li>
+                        <li>Difficulty Rating - one must be selected</li>
+                        <li>Game Options:  Some, none or all may be selected</li>
+                        <li>Game Options: "Fast Play" and "Long Game" cannot both be selected</li>
+                    </ol>
+                </p>
+                <p>
+                    Data Storage:
+                    <ol>
+                        <li>Create an object called game for storing the game information. Use a class or object literal.</li>
+                        <li>The game object must allow for any/all selected content.</li>
+                        <li>Create an object called gameLibrary. It will store an array of game objects.</li>
+                    </ol>
+                </p>
+                <p>
+                    Form Processing:
+                    <ol>
+                        <li>When the form is submitted by the "Add Game to Library" AND all fields pass validations gather the form data.</li>
+                        <li>Load the game data into a game object</li>
+                        <li>Display the game object in the console</li>
+                        <li>Add the game object to the gameLibrary</li>
+                        <li>Display the gameLibrary in the console</li>
+                        <li>"New Game" button should clear the form entries</li>
+                        <li>"Start Over" button should clear the form, the display and the data.</li>
+                    </ol>
+                </p>
+                <p>
+                    Display Game Library:
+                    <ol>
+                        <li>When the "Display Game Library" button is clicked display each game in the game library in the Game Library Area.</li>
+                        <li>Design your own layout and styling for to display the games.</li>
+                    </ol>
+                </p>
+            </div>
+        </main>
+        <footer>
+            <p>Copyright YYYY DMACC All rights reserved.</p>
+        </footer>
+
+        <script>
+            // Moving the script from up there down here so I can have easier access to it...
+            const gameTypes = ["board", "video", "tabletop", "rpg"];
+            const gameTypeAbb = ['b','v','t','r'];
+            const gameDifficulty = ["Easy","Moderate","Difficult","Hard"];
+            const gameOptions = ["Good for Kids","Multiplayer","Fast Play","Long Game","Solitare"];
+
+            // Copying some stuff from 2-3 and 2-4; it's useful, it's my own
+            // code, and I feel as though I understand the built-in system for
+            // this kind of work fairly thoroughly at this point.
+            function zip(...arrays) {
+                return arrays[0].keys().map(
+                    n => arrays.map(arr => arr[n])).toArray();
+            }
+
+            function dict(keys, tuples) {
+                return tuples.map(tup => Object.fromEntries(
+                    tup.keys().map(n => [keys[n], tup[n]])));
+            }
+
+            function elem(type, attrs = {}, children = null) {
+                let node = document.createElement(type);
+
+                if (Array.isArray(children)) {
+                    children.forEach(child => {
+                        if (child instanceof Node) node.appendChild(child);
+                    })
+                } else if (children instanceof Node) node.appendChild(children);
+
+                for (let attr of Object.keys(attrs)) {
+                    if (attr === "style") {
+                        for (let rule of Object.keys(attrs[attr])) {
+                            node.style.setProperty(rule, attrs[attr][rule]);
+                        }
+                    } else {
+                        node.setAttribute(attr, attrs[attr].toString());
+                    }
+                }
+
+                return node;
+            }
+
+            function text(str) {
+                return document.createTextNode(str);
+            }
+
+            function option(label, value) {
+                return elem("option", { value: value }, text(label));
+            }
+
+            function inputList(type, id, name, value, label) {
+                return elem("div", {}, [
+                    elem("input", { type: type, id: id, name: name, value: value }),
+                    elem("label", { for: id }, text(label)),
+                ]);
+            }
+
+            function getDifficultyColor(difficulty) {
+                switch (difficulty) {
+                    case "easy":      return ["#93c47d", "#fff"];
+                    case "moderate":  return ["#ffd966", "#000"];
+                    case "difficult": return ["#f6b26b", "#fff"];
+                    case "hard":      return ["#e06666", "#fff"];
+                }
+            }
+
+            function gameEntry(game) {
+                let difficultyColors = getDifficultyColor(game.difficulty);
+
+                let tags = [];
+
+                for (let opt of game.options) {
+                    tags.push(elem("li", {}, text(opt)))
+                }
+
+                return elem("article", {
+                    class: "game-entry",
+                    style: {
+                        padding: "1em",
+                        border: "1px solid black",
+                    }
+                }, [
+                    elem("section", {
+                        style: {
+                            display: "flex",
+                            "justify-content": "space-between",
+                            "align-items": "center"
+                        }
+                    }, [
+                        elem("h3", {
+                            style: { "text-decoration": "underline" }
+                        }, text(game.name)),
+                        elem("span", {
+                            style: {
+                                "background-color": difficultyColors[0],
+                                "color": difficultyColors[1],
+                                "padding": "15px 5px",
+                            }
+                        }, text(game.difficulty)),
+                    ]),
+                    elem("p", {}, text(game.players + "-player " + game.type)),
+                    tags.length > 0 ? elem("p", {}, text("Tags:")) : null,
+                    tags.length > 0 ? elem("ul", {
+                        style: {
+                            border: "1px solid black"
+                        }
+                    }, tags) : null
+                ])
+            }
+
+            function populateGameTypes() {
+                let types = document.getElementById("gameType");
+
+                let opts = dict(["label", "value"], zip(gameTypes, gameTypeAbb));
+                opts.forEach(opt => types.appendChild (
+                    option(opt.label, opt.value)
+                ));
+            }
+
+            function populateDifficulty() {
+                // I could have just put an id on the relevant parts, but I
+                // want to avoid touching the original document manually, at
+                // least as much as I can.
+                let label = document.querySelector("fieldset p:nth-of-type(4)");
+
+                let container = elem("div", { id: "difficulty" });
+                label.after(container);
+
+                gameDifficulty.forEach(val => container.appendChild (
+                    inputList("radio", "difficulty-" + val.toLowerCase(), "gameDifficulty", val.toLowerCase(), val)
+                ));
+            }
+
+            function populateGameOptions() {
+                let label = document.querySelector("fieldset p:nth-of-type(5)");
+
+                let container = elem("div", { id: "game-options" });
+                label.after(container);
+
+                let values = ["kid", "multi", "fast", "long", "solo"];
+                let boxes = dict(["label", "value"], zip(gameOptions, values));
+
+                boxes.forEach(box => container.appendChild (
+                    inputList("checkbox", box.value, "gameOptions", box.value, box.label)
+                ));
+            }
+
+            function setupMenus() {
+                populateGameTypes();
+                populateDifficulty();
+                populateGameOptions();
+            }
+
+            class Game {
+                static conversions = Object.freeze({
+                    types: {
+                        b: "board game",
+                        v: "video game",
+                        t: "tabletop game",
+                        r: "role-playing game",
+                    },
+
+                    options: {
+                        kid: "For kids",
+                        multi: "Multiplayer",
+                        fast: "Short gameplay",
+                        long: "Long gameplay",
+                        solo: "Solitaire",
+                    }
+                });
+
+                name;
+                type;
+                players;
+                difficulty;
+                options;
+
+                constructor(name, type, players, difficulty, options) {
+                    this.name = name;
+                    this.type = Game.conversions.types[type];
+                    this.players = players;
+                    this.difficulty = difficulty;
+                    this.options = [];
+
+                    for (let option of options.values().toArray()) {
+                        this.options.push(Game.conversions.options[option]);
+                    }
+                }
+            }
+
+            let gameLibrary = {
+                games: []
+            };
+
+            function validate(name, type, players, difficulty, options) {
+                if (name.length == 0 || name.length > 50)
+                    return "Name must be between 0 and 50 characters long.";
+
+                if (type === "")
+                    return "You must select a type of game.";
+
+                if (players < 1 || players > 20 || !Number.isInteger(players))
+                    return "Players must be a valid number between 1 and 20.";
+
+                if (difficulty === "")
+                    return "You must select a difficulty.";
+
+                if (options.has("fast") && options.has("long"))
+                    return "A game cannot be tagged as having both short and long gameplay.";
+
+                return true;
+            }
+
+            function registerEvents() {
+                let form = document.querySelector("form");
+
+                let addBtn = document.querySelector(
+                    'input[type="submit"][value^="Add"]');
+                let listBtn = document.querySelector(
+                    'input[type="submit"][value^="Display"]');
+                let fullResetBtn = document.querySelector(
+                    'input[type="reset"][value="Start Over"]');
+
+                form.addEventListener("submit", (e) => {
+                    // This form does not send to a server, so let's prevent
+                    // this program from reloading the page.
+                    event.preventDefault();
+                    const { submitter } = e;
+
+                    if (submitter.value.substring(0, 3) == "Add")
+                        processForm(form, addBtn);
+                    else if (submitter.value.substring(0, 7) == "Display")
+                        refreshLibrary();
+                });
+
+                fullResetBtn.addEventListener("click", (e) => {
+                    gameLibrary = {
+                        games: []
+                    };
+
+                    refreshLibrary();
+                })
+            }
+
+            function processForm(form, button) {
+                let data = new FormData(form, button);
+
+                let name = data.get("gameName") ?? "";
+                let type = data.get("gameType") ?? "";
+                let players = Number.parseInt(data.get("gamePlayers")) ?? -1;
+                let difficulty = data.get("gameDifficulty") ?? "";
+
+                let optArray = data.getAll("gameOptions") ?? [];
+                let options = new Set(optArray);
+
+                let result = validate(name, type, players, difficulty, options);
+                if (typeof result === "string") {
+                    alert(result);
+                    return;
+                }
+
+                let game = new Game(name, type, players, difficulty, options);
+                console.log("New game:");
+                console.log(game);
+
+                gameLibrary.games.push(game);
+                console.log(gameLibrary);
+
+                // I could update this automatically very easily, but I did it
+                // this way for the sake of the parameters of the assignment.
+                alert('Added game! Use the "Display Game Library" button to show a list of the games.');
+            }
+
+            function refreshLibrary() {
+                let libraryView = document.querySelector(".displayGameLibrary");
+
+                while (libraryView.children.length > 0) {
+                    libraryView.removeChild(libraryView.lastChild);
+                }
+
+                let content;
+
+                // We want to write placeholder text in the event that there's no data.
+                if (gameLibrary.games.length == 0) {
+                    content = elem("div", {
+                        class: "blank-library",
+                        style: {
+                            "text-align": "center"
+                        }
+                    }, [
+                        elem("p", { style: {
+                            "margin-bottom": "0.25em",
+                            "font-weight": "600",
+                            "font-style": "italic",
+                        } }, text("You haven't added any games to the library!")),
+                        elem("p", { style: {
+                            "font-size": "80%",
+                            "margin-top": '0em',
+                        } }, text("(You may add a game using the form above.)"))
+                    ]);
+                } else {
+                    let entries = [];
+
+                    for (let game of gameLibrary.games)
+                        entries.push(gameEntry(game));
+
+                    content = elem("div", {
+                        style: {
+                            display: "grid",
+                            "grid-template-columns": "1fr 1fr",
+                            gap: "1em",
+                            padding: "1em",
+                        }
+                    }, entries)
+                }
+
+                libraryView.appendChild(content)
+            }
+
+            function editCopyrightYear() {
+                let footer = document.querySelector("footer p");
+                let year = new Date().getFullYear();
+
+                footer.textContent = footer.textContent.replace("YYYY", year);
+            }
+
+            // I figure collecting everything that isn't a definition into a
+            // "main function" like other languages isn't the worst idea for
+            // maintainability.
+            function main() {
+                editCopyrightYear();
+                setupMenus();
+                registerEvents();
+                refreshLibrary();
+            }
+
+            main();
+        </script>
+    </div>
+</body>
+</html>
