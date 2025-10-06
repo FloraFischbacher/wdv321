@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Template Exercise</title>
+    <style>
+        #container {
+            width:80%;
+            margin-left:auto;
+            margin-right:auto;
+            background-color: khaki;
+            padding:15px;
+        }
+
+        .studentInputLine {
+            display:flex;
+        }
+
+        .studentInputLine div {
+            margin-right:20px;
+            margin-bottom:10px;
+        }
+
+        footer p {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <template id="input-line">
+        <div class="studentInputLine">
+            <div>
+                <label for="studentName">Student Name: </label>
+                <input type="text" name="studentName" id="studentName">
+            </div>
+            <div>
+                <label for="studentID">Student ID: </label>
+                <input type="text" name="studentID" id="studentID">
+            </div>
+        </div>
+    </template>
+
+   <div id="container">
+    <header>
+        <h1>WDV321 Advanced JavaScript</h1>
+        <h2>Dynamic Structure - Template Exercise</h2>
+    </header>
+    <main>
+        <h3>Dyanmic Form Fields</h3>
+        <form method="post" action="#">
+            <fieldset>
+                <legend>Student Registration Process:</legend>
+                    <section>
+                        <div class="studentInputLine">
+                            <div>
+                                <label for="studentName1">Student Name: </label>
+                                <input type="text" name="studentName1" id="studentName1">
+                            </div>
+                            <div>
+                                <label for="studentID1">Student ID: </label>
+                                <input type="text" name="studentID1" id="studentID1">                        
+                            </div>
+                        </div>
+                        <div class="studentInputLine">
+                            <div>
+                                <label for="studentName2">Student Name: </label>
+                                <input type="text" name="studentName2" id="studentName2">
+                            </div>
+                            <div>
+                                <label for="studentID2">Student ID: </label>
+                                <input type="text" name="studentID2" id="studentID2">                        
+                            </div>
+                        </div>
+                        <div class="studentInputLine">
+                            <div>
+                                <label for="studentName3">Student Name: </label>
+                                <input type="text" name="studentName3" id="studentName3">
+                            </div>
+                            <div>
+                                <label for="studentID3">Student ID: </label>
+                                <input type="text" name="studentID3" id="studentID3">                        
+                            </div>
+                        </div>                        
+                    </section>
+                    <div>
+                        <!-- Changing this to a normal button makes things much
+                             simpler. Besides, it being a form submission
+                             button doesn't really make a whole lot of sense to
+                             begin with. -->
+                        <input type="button" value="Add Another Student">
+                    </div> 
+                    <p>
+                        <input type="submit" value="Submit Registrations">
+                        <input type="reset" value="Clear Form">
+                    </p>               
+            </fieldset>
+        </form>
+        <h4>Instructions:</h4>
+        <ul>
+            <li>Create a template based on the studentInputLine section.</li>
+            <li>When the user clicks on the Add Another Student button call a function that will add another input line to the form.</li>
+            <li>Use the template as the basis for the new line.</li>
+            <li>You will need to update the studentName and studentID id values for each new row. The values of the id elements must be unique.</li>
+            <li>Add the new line to the form.</li>
+            <li>Note: this form will not process the form data.</li>
+        </ul>
+    </main>
+    <footer>
+        <p>WDV321 Advanced JavaScript Copyright:  All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Really cool feature! Never knew these existed, but I can see myself
+        // using them in the future (if not just web components generally).
+
+        // Because of the fact that there's three existing lines, I start the
+        // index for the input line IDs/names at 4.
+        let currentLine = 4;
+
+        let inputLines = document.querySelector("form section");
+
+        let inputLineTemplate = document.getElementById("input-line");
+        let inputLineBase = inputLineTemplate.content.children.item(0);
+
+        let inputLineElems = {
+            name: {
+                label: inputLineBase.children.item(0).children.item(0),
+                input: inputLineBase.children.item(0).children.item(1),
+            },
+            id: {
+                label: inputLineBase.children.item(1).children.item(0),
+                input: inputLineBase.children.item(1).children.item(1),
+            }
+        };
+
+        function generateInputLine() {
+            inputLineBase.setAttribute("class", "studentInputLine");
+            inputLineElems.name.label.setAttribute("for", "studentName" + currentLine);
+            inputLineElems.name.input.setAttribute("id", "studentName" + currentLine);
+            inputLineElems.name.input.setAttribute("name", "studentName" + currentLine);
+
+            inputLineElems.id.label.setAttribute("for", "studentID" + currentLine);
+            inputLineElems.id.input.setAttribute("id", "studentID" + currentLine);
+            inputLineElems.id.input.setAttribute("name", "studentID" + currentLine);
+
+            currentLine += 1;
+            return inputLineBase.cloneNode(true);
+        }
+
+        let addBtn = document.querySelector("input[value^=\"Add\"]");
+        addBtn.addEventListener("click", (e) => {
+            inputLines.appendChild(generateInputLine());
+        });
+    </script>
+   </div> 
+</body>
+</html>
