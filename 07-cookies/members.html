@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WDV321 Advanced JavaScript</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            background-color:burlywood;
+        }
+        #container {
+            width:70%;
+            margin-left:auto;
+            margin-right:auto;
+            padding-left:15px;
+            padding-right:15px;
+            background-color: chocolate;
+        }
+
+        header {
+            text-align: center;
+        }
+
+        nav {
+            display:flex;
+            justify-content: space-between;
+            margin-bottom:15px;
+        }
+
+        main {
+            display:flex;
+        }
+
+        main section {
+            width:50%;
+            border:thin solid black;
+
+        }
+
+        section h2, section h3 {
+            text-align: center;
+        }
+
+        form {
+            width: 70%;
+            margin-left:auto;
+            margin-right:auto;
+        }
+
+        footer p {
+            text-align: center;
+        }
+
+        .pageHeader {
+            color:blue;
+        }
+    </style>
+    <script>
+        //Instructions:
+        //1. This page will check for an authorized user cookie.  If there isn't one return the user to the home/index page.
+        //      If it is an authorized user then display the page and contents.
+        //
+        //2. Each time an authorized user comes to this page display the current value of the hit counter next to "Current Activity:"
+        //
+        //3. Access the eventRegistration object from local storage.
+        //      Display the guest information as formatted content under "Current Registrations" in the right column
+        //      Number the guests
+        //
+        //4. Display Cookie button should show the current cookies in the console
+        //5. Delete Cookie button should delete the authorization
+
+    </script>
+
+    <script src="core.js"></script>
+    <script>
+        checkUser();
+    </script>
+</head>
+<body>
+    <div id="container">
+
+        <header>
+            <h1>Science Fiction Book Club</h1>
+            <h2>"Predicting the future using or describing the future?"</h2>
+            <h2 class="pageHeader">Welcome Federation Members!</h2>
+        </header>
+
+        <nav>
+            <div>
+                <a href="index.html"><button>Home Page</button></a>
+                <a href="members.html"><button>Members Page</button></a>
+            </div>
+        </nav>
+
+        <main>
+            <section class="leftColumn">
+                <h3>Member Information</h3>
+                <p>
+                    <button id="display-button">Display Cookie</button>
+                    <button id="delete-button">Delete Authorization Cookie</button>
+                </p>
+            </section>
+            <section class="rightColumn">
+                <h3>Upcoming Events</h3>
+                <div>
+                    <h3>"Did Star Trek predict AI?"</h3>
+                </div>
+                <div>
+                    <h3>Current Registrations</h3>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Copyright &copy;<span id="year"></span> All rights reserved.</p>
+            <p>Current Activity: <span id="hits"></span></p>
+        </footer>
+
+    </div>
+    <script>
+        addCurrentYear();
+        updateHits();
+        displayAuthButton();
+        deleteAuthButton();
+        populateMemberInfo();
+        populateEventInfo();
+    </script>
+</body>
+</html>

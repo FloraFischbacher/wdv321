@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WDV321 Advanced JavaScript</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            background-color:burlywood;
+        }
+        #container {
+            width:70%;
+            margin-left:auto;
+            margin-right:auto;
+            padding-left:15px;
+            padding-right:15px;
+            background-color: chocolate;
+        }
+
+        header {
+            text-align: center;
+        }
+
+        nav {
+            display:flex;
+            justify-content: space-between;
+            margin-bottom:15px;
+        }
+
+        main {
+            display:flex;
+        }
+
+        main section {
+            width:50%;
+            border:thin solid black;
+
+        }
+
+        section h2, section h3 {
+            text-align: center;
+        }
+
+        form {
+            width: 70%;
+            margin-left:auto;
+            margin-right:auto;
+        }
+
+
+        footer p {
+            text-align: center;
+        }
+    </style>
+    <script>
+        //Instructions:
+        //1. Create a JavaScript object called eventRegistration.  This object will hold one or more registrations
+        //  each registration will have a name, email, phone and registration date (use the current date)
+        //
+        //2. Create a hit counter that will record each time somebody comes to this page.  Store the hit counter in a cookie.
+        //  Each time somebody comes to this page display the current value of the hit counter next to "Current Activity:"
+
+        //Sign In button:
+        //When the sign in form is clicked the following will happen
+        //  a. Somewhere on the page display a form to accept the username and password.  Use one of methods we reviewed
+        //      to dynamically display the form when needed.
+        //  b. When that form is selected compare the input to the contents of the membersInfo object.
+        //  c. If you find a match in the membersInfo object create a cookie called authorizedUser with the username as its value.
+    </script>
+
+    <script src="core.js"></script>
+</head>
+<body>
+    <div id="container">
+        <header>
+            <h1>Science Fiction Book Club</h1>
+            <h2>"Predicting the future using or describing the future?"</h2>
+        </header>
+
+        <nav>
+            <div>
+                <a href="index.html"><button>Home Page</button></a>
+                <a href="members.html"><button>Members Page</button></a>
+            </div>
+            <button id="login-button">Sign In</button>
+        </nav>
+
+        <main>
+            <section class="leftColumn">
+                <h3>Sign Up for our next Public Event</h3>
+                <form method="post" action="#">
+                    <fieldset>
+                        <p>Event Registration Form</p>
+                        <h4>Form Instructions:</h4>
+                        <ol>
+                            <li>Create fields for Name, Email, Phone</li>
+                            <li>Include validation</li>
+                            <li>When the form is submitted capture the form data and add it to the eventRegistration object.</li>
+                            <li>Store the eventRegistration object in local storage</li>
+                        </ol>
+
+                    </fieldset>
+                </form>
+            </section>
+            <section class="rightColumn">
+                <h3>Upcoming Events</h3>
+                <div>
+                    <h3>"Did Star Trek predict AI?"</h3>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Copyright &copy;<span id="year"></span> All rights reserved.</p>
+            <p>Current Activity: <span id="hits"></span></p>
+        </footer>
+    </div>
+
+    <script>
+        addCurrentYear();
+        updateHits();
+        addRegistrationForm();
+        addLoginPrompt();
+    </script>
+</body>
+</html>
