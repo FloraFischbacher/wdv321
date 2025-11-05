@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5-1: AJAX (with jQuery)</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=National+Park:wght@200..800&display=swap');
+
+        * {
+            margin: 0;
+        }
+
+        :root {
+            --green: #24c926;
+			--yellow: #ffd900;
+			--red: #ff5900;
+        }
+
+        body {
+			background-color: #efefef;
+			font-family: 'National Park', sans-serif;
+			font-size: 14pt;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1rem;
+		}
+
+        main {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            margin-top: 1rem;
+            gap: 1rem;
+        }
+    </style>
+
+    <script>
+        function elem(type, attrs = {}, children = null) {
+            let node = document.createElement(type);
+
+            if (node instanceof HTMLUnknownElement)
+                throw new Error("Invalid element type!");
+
+            if (Array.isArray(children)) {
+                children.forEach(child => {
+                    if (child instanceof Node) node.appendChild(child);
+                });
+            } else if (children instanceof Node) node.appendChild(children);
+
+            for (let attr of Object.keys(attrs)) {
+                if (attr === "style") {
+                    for (let rule of Object.keys(attrs[attr])) {
+                        node.style.setProperty(rule, attrs[attr][rule]);
+                    }
+                } else {
+                    node.setAttribute(attr, attrs[attr].toString());
+                }
+            }
+
+            return node;
+        }
+
+        function text(str) {
+            return document.createTextNode(str);
+        }
+
+        function measureGPA(gpa) {
+            const colors = Object.freeze({
+                good: { bg: "#24c926", fg: "#fff" },
+                okay: { bg: "#ffd900", fg: "#000" },
+                bad:  { bg: "#ff5900", fg: "#fff" },
+            });
+
+            let color;
+
+            if (gpa > 3.0) color = colors.good;
+            else if (gpa > 2.0 && gpa < 3.0) color = colors.okay;
+            else color = colors.bad;
+
+            return {
+                "background-color": color.bg,
+                "color": color.fg,
+            }
+        }
+
+        // Gets the information from the various .json files.
+        async function acquireStudentData(ids) {
+            let target = document.getElementsByTagName("main")[0];
+
+            let card = (data) => {
+                return elem("article", {
+                    style: {
+                        "background-color": "#FFF",
+                        "border-radius": "10px",
+                        "box-shadow": "0px 10px 15px 2px rgba(0, 0, 0, 0.1)",
+                        "padding": "1.5rem",
+                    }
+                }, [
+                    elem("h2", {}, text (
+                        data.student_first_name + " " +
+                        data.student_last_name)
+                    ),
+                    elem("h3", {
+                        style: {
+                            "padding-top": "0.1rem",
+                            "padding-bottom": "0.666rem",
+                            "font-weight": "400",
+                            "font-size": "12pt",
+                            "color": "#868686",
+                        }
+                    }, text("(#" + data.student_id + ")")),
+                    elem("section", {
+                        style: {
+                            "display": "flex",
+                            "justify-content": "space-between",
+                            "background-color": "rgba(0,0,0,0.05)",
+                            "box-shadow": "inset 0px 0px 15px -5px rgba(0,0,0,0.5)",
+                            "color": "white",
+                            "border-radius": "1000px",
+                            "padding": "0.5rem 1rem",
+                            "font-size": "12pt",
+                            "font-weight": "700",
+                        }
+                    }, [
+                        elem("span", {
+                            style: {
+                                "padding": "0.5rem 1.5rem",
+                                "margin-left": "-0.5rem",
+                                "border-radius": "1000px",
+                                "background-color": "#666",
+                                "box-shadow": "inset 0px 15px 17px -15px rgba(255,255,255,0.5), 3px 0px 5px rgba(0,0,0,0.15)",
+                            }
+                        }, text(data.student_major)),
+                        elem("span", {
+                            style: Object.assign({
+                                "padding": "0.5rem 1.5rem",
+                                "margin-right": "-0.5rem",
+                                "border-radius": "1000px",
+                                "box-shadow": "inset 0px 15px 17px -15px rgba(255,255,255,0.833), -3px 0px 5px rgba(0,0,0,0.15)",
+                            }, measureGPA(data.student_gpa))
+                        }, text("GPA: " + data.student_gpa))
+                    ]),
+                    elem("p", {
+                        style: {
+                            "font-style": "italic",
+                            "margin-top": "0.75rem",
+                            "font-size": "12pt",
+                        }
+                    }, text("Registered " + new Date(data.student_registration_date).toLocaleDateString())),
+                    elem("p", {
+                        style: {
+                            "margin-top": "0.5rem",
+                            "text-decoration": "underline",
+                            "font-size": "12pt",
+                        }
+                    }, text(data.student_credits + " credits taken"))
+                ])
+            };
+            
+            for (let id of ids) {
+                let file = "./" + id + ".json";
+                try {
+                    const response = await fetch(file);
+                    if (!response.ok) {
+                        throw new Error(`Failed to retrieve file! Code: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    target.appendChild(card(result));
+                } catch (err) {
+                    console.error(err.message)
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <h1>AJAX with Fetch</h1>
+    </header>
+    <main>
+        
+    </main>
+    <footer>
+
+    </footer>
+
+    <script>
+        acquireStudentData([900006361, 900668871, 903998004]);
+    </script>
+</body>
+</html>
